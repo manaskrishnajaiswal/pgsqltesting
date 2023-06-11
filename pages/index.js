@@ -1,8 +1,9 @@
 import Head from "next/head";
-import styles from "@/styles/Home.module.css";
+import "@/styles/Home.module.css";
 import { getMovies } from "@/lib/queries/movieQuery";
 import { useState } from "react";
 import axios from "axios";
+import { AiOutlineEye } from "react-icons/ai";
 
 export default function Home({ movies }) {
   const [offset, setOffset] = useState(25);
@@ -11,11 +12,11 @@ export default function Home({ movies }) {
   const handleLoadMore = async () => {
     try {
       const response = await axios.get("/api/query/getmovie", {
-        params: { offset, limit: 25 },
+        params: { offset, limit: 15 },
       });
       const newMovies = response.data;
       setAllMovies((prevMovies) => [...prevMovies, ...newMovies]);
-      setOffset((prevOffset) => prevOffset + 25);
+      setOffset((prevOffset) => prevOffset + 15);
     } catch (error) {
       console.error("Error fetching movies:", error);
     }
@@ -28,17 +29,54 @@ export default function Home({ movies }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <div>
-          <h1>Movies</h1>
-          <ul>
-            {allMovies.map((movie) => (
-              <li key={movie.id}>
-                {movie.title}, {movie.year}
-              </li>
-            ))}
-          </ul>
-          <button onClick={handleLoadMore}>Load More</button>
+      <main className="py-2 mx-4">
+        <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
+          Movies Table
+        </h1>
+        <div className="container mx-auto py-3">
+          <div>
+            <button
+              onClick={handleLoadMore}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Load More
+            </button>
+          </div>
+          <div className="fixTableHead scrollable-table my-2">
+            <table className="table-auto mx-auto border min-w-full">
+              <thead className="border">
+                <tr>
+                  <th className="border border-black p-2">Id</th>
+                  <th className="border border-black p-2">Title</th>
+                  <th className="border border-black p-2">Year</th>
+                  <th className="border border-black p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="border">
+                {allMovies.map((movie) => (
+                  <tr key={movie.id} className="border">
+                    <td className="border border-black text-center bg-gray-200 p-2">
+                      {movie.id}
+                    </td>
+                    <td className="border border-black text-center bg-gray-200 p-2">
+                      {movie.title}
+                    </td>
+                    <td className="border border-black text-center bg-gray-200 p-2">
+                      {movie.year}
+                    </td>
+                    <td className="border border-black text-center bg-gray-200 p-2">
+                      <span className="flex justify-center">
+                        <AiOutlineEye
+                          className="cursor-pointer"
+                          size={23}
+                        ></AiOutlineEye>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </>
@@ -47,7 +85,7 @@ export default function Home({ movies }) {
 
 export async function getServerSideProps() {
   try {
-    const movies = await getMovies(0, 25);
+    const movies = await getMovies(0, 15);
     return { props: { movies } };
   } catch (error) {
     console.error("Error fetching users:", error);

@@ -13,7 +13,7 @@ export default function Home({ peoples }) {
       </Head>
       <main>
         <div>
-          <h1>peoples</h1>
+          <h1>Peoples Tables</h1>
           <ul>
             {peoples.map((people) => (
               <li key={people.id}>

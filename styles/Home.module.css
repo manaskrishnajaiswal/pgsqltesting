@@ -1,0 +1,20 @@
+/* Hide the default scrollbar */
+.scrollable-table::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+.scrollable-table::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.scrollable-table::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+/* Handle on hover */
+.scrollable-table::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
