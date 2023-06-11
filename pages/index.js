@@ -1,7 +1,25 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
+import { getMovies } from "@/lib/queries/movieQuery";
+import { useState } from "react";
+import axios from "axios";
 
-export default function Home() {
+export default function Home({ movies }) {
+  const [offset, setOffset] = useState(25);
+  const [allMovies, setAllMovies] = useState(movies);
+
+  const handleLoadMore = async () => {
+    try {
+      const response = await axios.get("/api/query/getmovie", {
+        params: { offset, limit: 25 },
+      });
+      const newMovies = response.data;
+      setAllMovies((prevMovies) => [...prevMovies, ...newMovies]);
+      setOffset((prevOffset) => prevOffset + 25);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
   return (
     <>
       <Head>
@@ -11,8 +29,28 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <h1 className="text-3xl font-bold underline">Hello world!</h1>
+        <div>
+          <h1>Movies</h1>
+          <ul>
+            {allMovies.map((movie) => (
+              <li key={movie.id}>
+                {movie.title}, {movie.year}
+              </li>
+            ))}
+          </ul>
+          <button onClick={handleLoadMore}>Load More</button>
+        </div>
       </main>
     </>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const movies = await getMovies(0, 25);
+    return { props: { movies } };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return { props: { movies: [] } };
+  }
 }
