@@ -1,18 +1,38 @@
 import Head from "next/head";
 import "@/styles/Home.module.css";
 import { getMovies } from "@/lib/queries/movieQuery";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { AiOutlineEye } from "react-icons/ai";
 
 export default function Home({ movies }) {
   const [offset, setOffset] = useState(25);
   const [allMovies, setAllMovies] = useState(movies);
+  const [sortByCol, setSortbyCol] = useState("title");
+  console.log(sortByCol);
+  useEffect(() => {
+    console.log(sortByCol);
 
+    const fetchData = async () => {
+      try {
+        // Perform asynchronous operations here
+        const response = await axios.get("/api/query/getmovie", {
+          params: { offset, limit: 15, sortByCol: sortByCol },
+        });
+        const newMovies = response.data;
+        setAllMovies([...newMovies]);
+        setOffset(0);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData(); // Invoke the async function immediately
+  }, [sortByCol]);
   const handleLoadMore = async () => {
     try {
       const response = await axios.get("/api/query/getmovie", {
-        params: { offset, limit: 15 },
+        params: { offset, limit: 15, sortByCol: sortByCol },
       });
       const newMovies = response.data;
       setAllMovies((prevMovies) => [...prevMovies, ...newMovies]);
@@ -46,9 +66,24 @@ export default function Home({ movies }) {
             <table className="table-auto mx-auto border min-w-full">
               <thead className="border">
                 <tr>
-                  <th className="border border-black p-2">Id</th>
-                  <th className="border border-black p-2">Title</th>
-                  <th className="border border-black p-2">Year</th>
+                  <th className="border border-black p-2">
+                    Id&nbsp;&nbsp;
+                    <span onClick={() => setSortbyCol("id")}>
+                      <i className="fa-solid fa-sort cursor-pointer"></i>
+                    </span>
+                  </th>
+                  <th className="border border-black p-2">
+                    Title&nbsp;&nbsp;
+                    <span onClick={() => setSortbyCol("title")}>
+                      <i className="fa-solid fa-sort cursor-pointer"></i>
+                    </span>
+                  </th>
+                  <th className="border border-black p-2">
+                    Year&nbsp;&nbsp;
+                    <span onClick={() => setSortbyCol("year")}>
+                      <i className="fa-solid fa-sort cursor-pointer"></i>
+                    </span>
+                  </th>
                   <th className="border border-black p-2">Actions</th>
                 </tr>
               </thead>
@@ -85,7 +120,7 @@ export default function Home({ movies }) {
 
 export async function getServerSideProps() {
   try {
-    const movies = await getMovies(0, 15);
+    const movies = await getMovies(0, 15, "title");
     return { props: { movies } };
   } catch (error) {
     console.error("Error fetching users:", error);
